@@ -98,7 +98,7 @@
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
 				1AD416440B9789403F9264FF /* PrivacyInfo.xcprivacy */,
 			);
-			name = "PageUp";
+			name = "Freecharge";
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
@@ -193,8 +193,8 @@
 			);
 			dependencies = (
 			);
-			name = "PageUp";
-			productName = "PageUp";
+			name = "Freecharge";
+			productName = "Freecharge";
 			productReference = 13B07F961A680F5B00A75B9A /* PageUp.app */;
 			productType = "com.apple.product-type.application";
 		};
@@ -435,7 +435,7 @@
 					"-lc++",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.PageUp.clone";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.freecharge";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PageUp.app/PageUp";
 			};
@@ -459,7 +459,7 @@
 					"-lc++",
 					"$(inherited)",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.PageUp.clone";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.freecharge";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PageUp.app/PageUp";
 			};
@@ -474,7 +474,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = "PageUp/Info.plist";
-             INFOPLIST_KEY_CFBundleDisplayName = "PageUp";
+             INFOPLIST_KEY_CFBundleDisplayName = "Freecharge";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -485,8 +485,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.PageUp.clone";
-				PRODUCT_NAME = "PageUp";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.freecharge";
+				PRODUCT_NAME = "Freecharge";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -501,7 +501,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				INFOPLIST_FILE = "PageUp/Info.plist";
-             INFOPLIST_KEY_CFBundleDisplayName = "PageUp";
+             INFOPLIST_KEY_CFBundleDisplayName = "Freecharge";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -512,8 +512,8 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.PageUp.clone";
-				PRODUCT_NAME = "PageUp";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.freecharge";
+				PRODUCT_NAME = "Freecharge";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
