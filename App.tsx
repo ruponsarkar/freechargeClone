@@ -29,7 +29,10 @@ import GoogleMapsScreen from './src/screens/googlemaps';
 import Home from './src/screens/home';
 import Products from './src/screens/products';
 import Nagigations from './src/navigation';
-
+import { Provider } from 'react-redux';
+import { store } from './src/redux/store';
+import {AuthProvider} from './src/context/AuthContext';
+import RootNavigator from './src/navigation/RootNavigator';
 
 
 type SectionProps = PropsWithChildren<{
@@ -46,7 +49,14 @@ function App(): React.JSX.Element {
   };
 
   return (
-    <Nagigations />
+    <Provider store={store}>
+      <AuthProvider>
+
+      {/* <Nagigations /> */}
+      <RootNavigator />
+
+      </AuthProvider>
+    </Provider>
   );
 }
 

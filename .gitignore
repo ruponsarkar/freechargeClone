@@ -77,3 +77,4 @@ yarn-error.log
 *.aab
 app/build/
 android/app/build/
+.env
