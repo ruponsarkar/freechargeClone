@@ -95,7 +95,7 @@ const CheckoutScreen = ({navigation, route}) => {
       */
 
       const text = thermalReceiptTemplate(orderData);
-      console.log(JSON.stringify(text));
+      console.log("receipt log here==> \n", JSON.stringify(text));
       const result = await printReceipt(text);
       console.log('PRINT RESULT =>', result);
 
@@ -118,7 +118,7 @@ const CheckoutScreen = ({navigation, route}) => {
 
         return;
       }
-      Alert.alert('Error', 'Failed to place order');
+      Alert.alert('Error', 'Failed to place order', err);
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, FlatList, TouchableOpacity, Alert} from 'react-native';
 // import RNPrint from 'react-native-print';
 import {receiptHTML} from '../helper/receiptTemplate';
 import {
@@ -11,7 +11,7 @@ import {GlobalStyles} from '../styles/GlobalStyles';
 
 import {printReceipt} from '../utils/printer';
 
-const OrderReceipt = ({order, showPrint = true}) => {
+const OrderReceipt = ({order, showPrint = true, navigation}) => {
   const handlePrint = async () => {
     try {
       const orderData = {
@@ -32,7 +32,13 @@ const OrderReceipt = ({order, showPrint = true}) => {
 
       const text = thermalReceiptTemplate(orderData);
       // console.log(JSON.stringify(text));
-      await printReceipt(text);
+      let printRes = await printReceipt(text);
+      console.log("printRes =>", printRes);
+      if(printRes === 'NO_PRINTER') {
+        Alert.alert('No printer selected', 'Please select a printer to print the receipt.');
+        return;
+      }
+      
 
       // await MPTPrinter.print('66:32:86:E1:70:C6', text);
 
@@ -111,6 +117,9 @@ const OrderReceipt = ({order, showPrint = true}) => {
           <Text style={styles.printText}>Print Receipt</Text>
         </TouchableOpacity>
       )}
+      <TouchableOpacity style={[styles.printBtn, GlobalStyles.dangerButton]} onPress={() => navigation.navigate('Home')}>
+          <Text style={styles.printText}>Close</Text>
+        </TouchableOpacity>
       {/* {showPrint && (
         <TouchableOpacity style={[styles.printBtn]} onPress={print}>
           <Text style={styles.printText}>Print Thermal</Text>

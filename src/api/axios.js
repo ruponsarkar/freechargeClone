@@ -2,6 +2,11 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {isTokenExpired} from '../utils/jwt';
 import {API_URL} from '@env';
+import {
+  clearStoredAuth,
+  notifyAuthLoggedOut,
+  notifyAuthTokenUpdated,
+} from '../context/authSession';
 
 let isRefreshing = false;
 let refreshQueue = [];
@@ -27,7 +32,7 @@ const processQueue = (error, token = null) => {
 
 api.interceptors.request.use(async config => {
   let token = await AsyncStorage.getItem('token');
-  console.log("API_URL ", API_URL);
+  console.log('API_URL ', API_URL);
 
   // 🔁 Token expired → refresh
   if (token && isTokenExpired(token)) {
@@ -48,7 +53,9 @@ api.interceptors.request.use(async config => {
 
     try {
       const refreshToken = await AsyncStorage.getItem('refreshToken');
-      if (!refreshToken) throw new Error('No refresh token');
+      if (!refreshToken) {
+        throw new Error('No refresh token');
+      }
 
       const res = await refreshAxios.post('/auth/refresh-token', {
         refreshToken,
@@ -56,12 +63,14 @@ api.interceptors.request.use(async config => {
 
       token = res.data.token;
       await AsyncStorage.setItem('token', token);
+      notifyAuthTokenUpdated(token);
 
       processQueue(null, token);
       config.headers.Authorization = `Bearer ${token}`;
     } catch (err) {
       processQueue(err, null);
-      await AsyncStorage.clear();
+      await clearStoredAuth();
+      notifyAuthLoggedOut();
       throw err;
     } finally {
       isRefreshing = false;
@@ -74,5 +83,17 @@ api.interceptors.request.use(async config => {
 
   return config;
 });
+
+api.interceptors.response.use(
+  response => response,
+  async error => {
+    if (error?.response?.status === 401) {
+      await clearStoredAuth();
+      notifyAuthLoggedOut();
+    }
+
+    return Promise.reject(error);
+  },
+);
 
 export default api;

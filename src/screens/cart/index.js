@@ -11,7 +11,7 @@ import {useSelector} from 'react-redux';
 import {GlobalStyles} from '../../styles/GlobalStyles';
 import BarcodeScannerModal from '../../components/BarcodeScannerModal';
 import {useDispatch} from 'react-redux';
-import {updateQty, removeFromCart} from '../../redux/slices/cartSlice';
+import {updateQty, removeFromCart, clearCart} from '../../redux/slices/cartSlice';
 
 const BillingScreen = ({navigation}) => {
   const dispatch = useDispatch();
@@ -21,6 +21,7 @@ const BillingScreen = ({navigation}) => {
   const [editingId, setEditingId] = useState(null);
   const [tempQty, setTempQty] = useState('');
   const [discount, setDiscount] = useState(0);
+  const [taxPercentage, setTaxPercentage] = useState(0);
 
   const cartItems = useSelector(state => state.cart.items);
   const [showRemoveFor, setShowRemoveFor] = useState(null);
@@ -30,8 +31,7 @@ const BillingScreen = ({navigation}) => {
     0,
   );
 
-  const tax = subtotal * 0.0; // for 5% add 0.05 tax
-  // const total = subtotal + tax;
+  const tax = subtotal * (taxPercentage / 100);
   const total = Math.max(subtotal - discount + tax, 0);
 
   const gotoScanData = code => {
@@ -41,20 +41,8 @@ const BillingScreen = ({navigation}) => {
     });
   };
 
-  // const renderItem = ({item}) => (
-  //   <View style={styles.itemRow}>
-  //     <Text style={styles.itemName}>{item.name}</Text>
-  //     <Text style={styles.itemQty}>x{item.qty}</Text>
-  //     <Text style={styles.itemPrice}>₹{item.sellingPrice * item.qty}</Text>
-  //   </View>
-  // );
 
   const renderItem = ({item}) => (
-    // <TouchableOpacity
-    //   activeOpacity={0.9}
-    //   onPress={() =>
-    //     setShowRemoveFor(prev => (prev === item._id ? null : item._id))
-    //   }>
     <View style={styles.itemRow}>
       <TouchableOpacity
         activeOpacity={0.9}
@@ -147,7 +135,20 @@ const BillingScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <Text style={styles.header}>Billing Summary</Text>
+      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+        <Text style={styles.header}>Billing Summary</Text>
+        <TouchableOpacity
+          onPress={() => {
+            dispatch(clearCart());
+            navigation.navigate('Home');
+          }}>
+          <Text style={{color: '#f70a0a', fontWeight: '600'}}>
+           X Cancel Order
+          </Text>
+        </TouchableOpacity>
+      </View>
+      {/* <Text style={styles.header}>Billing Summary</Text>
+      <Text style={styles.header}>Billing Summary</Text> */}
 
       {/* Items */}
       <FlatList
@@ -167,8 +168,22 @@ const BillingScreen = ({navigation}) => {
         </View>
 
         <View style={styles.row}>
-          <Text>Tax (0%)</Text>
-          <Text>₹{tax.toFixed(2)}</Text>
+          <Text>Tax</Text>
+
+          <View style={styles.taxRow}>
+            <TextInput
+              value={String(taxPercentage)}
+              keyboardType="number-pad"
+              placeholder="0"
+              style={styles.taxInput}
+              onChangeText={val => {
+                const percent = parseFloat(val) || 0;
+                setTaxPercentage(percent);
+              }}
+            />
+            <Text style={styles.taxPercent}>%</Text>
+            <Text style={styles.taxAmount}>₹{tax.toFixed(2)}</Text>
+          </View>
         </View>
 
         <View style={styles.row}>
@@ -229,6 +244,8 @@ const BillingScreen = ({navigation}) => {
         visible={showScanner}
         onClose={() => setShowScanner(false)}
         onScan={code => gotoScanData(code)}
+        navigation={navigation}
+        homeBtn={true}
       />
     </View>
   );
@@ -390,6 +407,30 @@ const styles = StyleSheet.create({
     borderColor: '#888',
     textAlign: 'right',
     padding: 0,
+    fontWeight: '500',
+  },
+  taxRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
+  taxInput: {
+    width: 50,
+    height: 32,
+    borderBottomWidth: 1,
+    borderColor: '#888',
+    textAlign: 'right',
+    padding: 0,
+    fontWeight: '500',
+    marginRight: 6,
+  },
+  taxPercent: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginRight: 12,
+  },
+  taxAmount: {
+    fontSize: 14,
     fontWeight: '500',
   },
 });

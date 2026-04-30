@@ -2,12 +2,12 @@ import React from 'react';
 import {View, StyleSheet} from 'react-native';
 import OrderReceipt from '../../components/OrderReceipt';
 
-const OrderDetailsScreen = ({route}) => {
+const OrderDetailsScreen = ({route, navigation}) => {
   const {order} = route.params;
 
   return (
     <View style={styles.container}>
-      <OrderReceipt order={order} showPrint />
+      <OrderReceipt order={order} showPrint navigation={navigation} />
     </View>
   );
 };

@@ -1,6 +1,6 @@
 import {NativeModules} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import {Alert} from 'react-native';
 const {MPTPrinter} = NativeModules;
 
 export const getPrinters = async () => {
@@ -35,9 +35,13 @@ const MAX_RETRY = 1;
  */
 export const printReceipt = async text => {
   const mac = await AsyncStorage.getItem('PRINTER_MAC');
+  console.log('Printer MAC =>', mac);
   if (!mac) {
-    Alert.alert('No printer selected');
-    throw 'NO_PRINTER';
+    // Alert.alert('No printer selected');
+    console.log("No printer selected");
+    
+    return 'NO_PRINTER';
+    // throw 'NO_PRINTER';
   }
 
   return new Promise((resolve, reject) => {

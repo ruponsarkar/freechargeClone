@@ -13,7 +13,7 @@ import {
   useCodeScanner,
 } from 'react-native-vision-camera';
 
-export default function BarcodeScannerModal({visible, onClose, onScan}) {
+export default function BarcodeScannerModal({visible, onClose, onScan, navigation, homeBtn = false}) {
   const [hasPermission, setHasPermission] = useState(false);
   const [focusPoint, setFocusPoint] = useState(null);
 
@@ -78,6 +78,13 @@ export default function BarcodeScannerModal({visible, onClose, onScan}) {
               <Text style={styles.backText}>← Back</Text>
             </TouchableOpacity>
 
+            {/* 🏠 Home Button */}
+            {homeBtn && (
+              <TouchableOpacity style={styles.homeButton} onPress={() => navigation.navigate('Home')}>
+                <Text style={styles.backText}> home  </Text>
+              </TouchableOpacity>
+            )}
+
             {/* 🔲 Scan Box */}
             <View style={styles.scanBox} />
 
@@ -113,6 +120,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 50,
     left: 20,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+  },
+  homeButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
     backgroundColor: 'rgba(0,0,0,0.6)',
     paddingVertical: 8,
     paddingHorizontal: 12,
