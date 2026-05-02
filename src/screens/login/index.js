@@ -7,7 +7,6 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {loginAPI} from '../../api/services/auth';
 // import AuthContext from '../../context/AuthContext';
 import {AuthContext} from '../../context/AuthContext';
@@ -16,6 +15,8 @@ import { requestAllAppPermissions } from '../../utils/allPermissions';
 
 export default function LoginScreen({navigation}) {
   const {login} = useContext(AuthContext);
+  const [tenantSlug, setTenantSlug] = useState('');
+  const [tenantId, setTenantId] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,10 +30,20 @@ export default function LoginScreen({navigation}) {
     try {
       setLoading(true);
 
-      const res = await loginAPI({email, password});
+      const res = await loginAPI({
+        tenantSlug,
+        tenantId,
+        email,
+        password,
+      });
       console.log('Login response:', res.data);
 
-      login(res.data.token, res.data.refreshToken, res.data.user);
+      login(
+        res.data.token,
+        res.data.refreshToken,
+        res.data.user,
+        res.data.tenant,
+      );
 
       // 🔐 REQUEST PERMISSIONS ONCE AFTER LOGIN
       await requestAllAppPermissions();
@@ -59,6 +70,22 @@ export default function LoginScreen({navigation}) {
 
 
       <Text style={styles.title}>Login</Text>
+
+      <TextInput
+        placeholder="Tenant slug"
+        value={tenantSlug}
+        onChangeText={setTenantSlug}
+        autoCapitalize="none"
+        style={styles.input}
+      />
+
+      <TextInput
+        placeholder="Tenant ID"
+        value={tenantId}
+        onChangeText={setTenantId}
+        autoCapitalize="none"
+        style={styles.input}
+      />
 
       <TextInput
         placeholder="Email"

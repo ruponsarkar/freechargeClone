@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {isTokenExpired} from '../utils/jwt';
 
-const AUTH_STORAGE_KEYS = ['token', 'refreshToken', 'user'];
+const AUTH_STORAGE_KEYS = ['token', 'refreshToken', 'user', 'tenant'];
 
 let authStateListener = null;
 
