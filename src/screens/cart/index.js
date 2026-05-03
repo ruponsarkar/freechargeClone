@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   TextInput,
+  useColorScheme,
 } from 'react-native';
 import {useSelector} from 'react-redux';
 import {GlobalStyles} from '../../styles/GlobalStyles';
@@ -14,6 +15,8 @@ import {useDispatch} from 'react-redux';
 import {updateQty, removeFromCart, clearCart} from '../../redux/slices/cartSlice';
 
 const BillingScreen = ({navigation}) => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
   const dispatch = useDispatch();
 
   const [showScanner, setShowScanner] = useState(false);
@@ -77,7 +80,8 @@ const BillingScreen = ({navigation}) => {
             value={tempQty}
             autoFocus
             keyboardType="number-pad"
-            style={styles.qtyInput}
+            placeholderTextColor={isDarkMode ? '#aaa' : '#888'}
+            style={[styles.qtyInput, isDarkMode && styles.inputDark]}
             onChangeText={setTempQty}
             onBlur={() => {
               const newQty = parseInt(tempQty, 10);
@@ -133,16 +137,16 @@ const BillingScreen = ({navigation}) => {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, isDarkMode && styles.containerDark]}>
       {/* Header */}
       <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-        <Text style={styles.header}>Billing Summary</Text>
+        <Text style={[styles.header, isDarkMode && styles.textDark]}>Billing Summary</Text>
         <TouchableOpacity
           onPress={() => {
             dispatch(clearCart());
             navigation.navigate('Home');
           }}>
-          <Text style={{color: '#f70a0a', fontWeight: '600'}}>
+          <Text style={[styles.cancelText, isDarkMode && styles.cancelTextDark]}>
            X Cancel Order
           </Text>
         </TouchableOpacity>
@@ -156,15 +160,15 @@ const BillingScreen = ({navigation}) => {
         keyExtractor={item => item._id}
         renderItem={renderItem}
         ListEmptyComponent={
-          <Text style={styles.emptyText}>No items in cart</Text>
+          <Text style={[styles.emptyText, isDarkMode && styles.textDark]}>No items in cart</Text>
         }
       />
 
       {/* Summary */}
-      <View style={styles.summaryBox}>
+      <View style={[styles.summaryBox, isDarkMode && styles.summaryBoxDark]}>
         <View style={styles.row}>
-          <Text>Subtotal</Text>
-          <Text>₹{subtotal.toFixed(2)}</Text>
+          <Text style={isDarkMode && styles.textDark}>Subtotal</Text>
+          <Text style={isDarkMode && styles.textDark}>₹{subtotal.toFixed(2)}</Text>
         </View>
 
         <View style={styles.row}>
@@ -175,7 +179,8 @@ const BillingScreen = ({navigation}) => {
               value={String(taxPercentage)}
               keyboardType="number-pad"
               placeholder="0"
-              style={styles.taxInput}
+              placeholderTextColor={isDarkMode ? '#aaa' : '#888'}
+              style={[styles.taxInput, isDarkMode && styles.inputDark]}
               onChangeText={val => {
                 const percent = parseFloat(val) || 0;
                 setTaxPercentage(percent);
@@ -193,7 +198,8 @@ const BillingScreen = ({navigation}) => {
             value={String(discount)}
             keyboardType="number-pad"
             placeholder="0"
-            style={styles.discountInput}
+            placeholderTextColor={isDarkMode ? '#aaa' : '#888'}
+            style={[styles.discountInput, isDarkMode && styles.inputDark]}
             onChangeText={val => {
               const d = parseFloat(val) || 0;
               setDiscount(d);
@@ -216,8 +222,9 @@ const BillingScreen = ({navigation}) => {
           cartItems.length === 0
             ? styles.disabledBtn
             : GlobalStyles.secondaryButton,
+          isDarkMode && styles.buttonDark,
         ]}>
-        <Text style={styles.checkoutText}>+ Add More</Text>
+        <Text style={[styles.checkoutText, isDarkMode && styles.textDark]}>+ Add More</Text>
       </TouchableOpacity>
 
       {/* Checkout */}
@@ -236,8 +243,9 @@ const BillingScreen = ({navigation}) => {
           cartItems.length === 0
             ? styles.disabledBtn
             : GlobalStyles.primaryButton,
+          isDarkMode && styles.buttonDark,
         ]}>
-        <Text style={styles.checkoutText}>Checkout</Text>
+        <Text style={[styles.checkoutText, isDarkMode && styles.textDark]}>Checkout</Text>
       </TouchableOpacity>
 
       <BarcodeScannerModal
@@ -286,12 +294,19 @@ const styles = StyleSheet.create({
     marginTop: 40,
     color: '#888',
   },
+  emptyTextDark: {
+    color: '#ccc',
+  },
   summaryBox: {
     marginTop: 20,
     padding: 14,
     backgroundColor: '#fff',
     borderRadius: 10,
     elevation: 2,
+  },
+  summaryBoxDark: {
+    backgroundColor: '#1f1f1f',
+    shadowColor: '#000',
   },
   row: {
     flexDirection: 'row',
@@ -381,6 +396,26 @@ const styles = StyleSheet.create({
     borderColor: '#2E7D32',
     textAlign: 'center',
     fontWeight: '600',
+  },
+  inputDark: {
+    borderColor: '#555',
+    color: '#fff',
+  },
+  containerDark: {
+    backgroundColor: '#121212',
+  },
+  textDark: {
+    color: '#e2e2e2',
+  },
+  cancelText: {
+    color: '#f70a0a',
+    fontWeight: '600',
+  },
+  cancelTextDark: {
+    color: '#ff8a80',
+  },
+  buttonDark: {
+    opacity: 0.9,
   },
   removeBtn: {
     position: 'absolute',

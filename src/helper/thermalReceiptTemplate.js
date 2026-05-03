@@ -1,3 +1,5 @@
+import {getOrgName} from '../config/appSettings';
+
 const WIDTH = 32;
 
 const padRight = (t, w) => t.length > w ? t.slice(0, w) : t.padEnd(w);
@@ -10,13 +12,14 @@ const itemLine = (name, qty, amount) => {
 
 export const thermalReceiptTemplate = order => {
   const line = '-'.repeat(WIDTH);
+  const orgName = getOrgName();
 
   const items = order.items
     .map(i => itemLine(i.name || 'Item', i.quantity, i.price * i.quantity))
     .join('\n');
 
   return (
-`      *** Sarkar Dhaba ***
+`      *** ${orgName} ***
 
 Order: ${order.order_id}
 Pay: ${order.payment_type.toUpperCase()}

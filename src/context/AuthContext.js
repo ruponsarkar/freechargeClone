@@ -13,6 +13,8 @@ import {
   getValidStoredToken,
   setAuthStateListener,
 } from './authSession';
+import {getSettings} from '../api/services/product';
+import {setAppSettings} from '../config/appSettings';
 
 export const AuthContext = createContext();
 
@@ -92,6 +94,23 @@ export const AuthProvider = ({children}) => {
   useEffect(() => {
     checkToken();
   }, [checkToken]);
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await getSettings();
+        if (response?.data) {
+          setAppSettings(response.data);
+        }
+      } catch (error) {
+        console.warn('Failed to load app settings', error);
+      }
+    };
+
+    if (!loading) {
+      loadSettings();
+    }
+  }, [loading]);
 
   useEffect(() => {
     const removeListener = setAuthStateListener(async event => {

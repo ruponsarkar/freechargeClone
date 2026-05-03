@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableOpacity, Alert} from 'react-native';
+import {View, Text, StyleSheet, FlatList, TouchableOpacity, Alert, useColorScheme} from 'react-native';
 // import RNPrint from 'react-native-print';
 import {receiptHTML} from '../helper/receiptTemplate';
 import {
@@ -12,6 +12,9 @@ import {GlobalStyles} from '../styles/GlobalStyles';
 import {printReceipt} from '../utils/printer';
 
 const OrderReceipt = ({order, showPrint = true, navigation}) => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+
   const handlePrint = async () => {
     try {
       const orderData = {
@@ -51,9 +54,9 @@ const OrderReceipt = ({order, showPrint = true, navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.orderId}>Order ID: {order.order_id}</Text>
-      <Text style={styles.meta}>
+    <View style={[styles.container, isDarkMode && styles.containerDark]}>
+      <Text style={[styles.orderId, isDarkMode && styles.textDark]}>Order ID: {order.order_id}</Text>
+      <Text style={[styles.meta, isDarkMode && styles.textDark]}>
         {new Date(order.createdAt).toLocaleString()}
       </Text>
 
@@ -63,50 +66,51 @@ const OrderReceipt = ({order, showPrint = true, navigation}) => {
         keyExtractor={(item, index) => index.toString()}
         renderItem={({item}) => (
           <View style={styles.itemRow}>
-            <Text style={styles.itemName}>
+            <Text style={[styles.itemName, isDarkMode && styles.textDark]}>
               {item.product?.name || 'Item'} x {item.quantity}
             </Text>
-            <Text>₹{(item.price * item.quantity).toFixed(2)}</Text>
+            <Text style={isDarkMode && styles.textDark}>₹{(item.price * item.quantity).toFixed(2)}</Text>
           </View>
         )}
       />
 
-      <View style={styles.divider} />
+      <View style={[styles.divider, isDarkMode && styles.dividerDark]} />
 
       {/* SUMMARY */}
       <View style={styles.row}>
-        <Text>Subtotal</Text>
-        <Text>₹{order.subtotal.toFixed(2)}</Text>
+        <Text style={isDarkMode && styles.textDark}>Subtotal</Text>
+        <Text style={isDarkMode && styles.textDark}>₹{order.subtotal.toFixed(2)}</Text>
       </View>
       <View style={styles.row}>
-        <Text>Discount</Text>
-        <Text>-₹{order.discount.toFixed(2)}</Text>
+        <Text style={isDarkMode && styles.textDark}>Discount</Text>
+        <Text style={isDarkMode && styles.textDark}>-₹{order.discount.toFixed(2)}</Text>
       </View>
       <View style={styles.row}>
-        <Text>Tax</Text>
-        <Text>₹{order.tax.toFixed(2)}</Text>
-      </View>
-
-      <View style={styles.divider} />
-
-      <View style={styles.row}>
-        <Text style={styles.total}>Total</Text>
-        <Text style={styles.total}>₹{order.total.toFixed(2)}</Text>
+        <Text style={isDarkMode && styles.textDark}>Tax</Text>
+        <Text style={isDarkMode && styles.textDark}>₹{order.tax.toFixed(2)}</Text>
       </View>
 
+      <View style={[styles.divider, isDarkMode && styles.dividerDark]} />
+
       <View style={styles.row}>
-        <Text style={styles.total}>Paid</Text>
-        <Text style={styles.total}>-₹{order.paidAmount.toFixed(2)}</Text>
+        <Text style={[styles.total, isDarkMode && styles.textDark]}>Total</Text>
+        <Text style={[styles.total, isDarkMode && styles.textDark]}>₹{order.total.toFixed(2)}</Text>
       </View>
-      <View style={styles.divider} />
+
       <View style={styles.row}>
-        <Text style={styles.total}>To be paid</Text>
-        <Text style={styles.total}>₹{order.credit.toFixed(2)}</Text>
+        <Text style={[styles.total, isDarkMode && styles.textDark]}>Paid</Text>
+        <Text style={[styles.total, isDarkMode && styles.textDark]}>-₹{order.paidAmount.toFixed(2)}</Text>
+      </View>
+      <View style={[styles.divider, isDarkMode && styles.dividerDark]} />
+      <View style={styles.row}>
+        <Text style={[styles.total, isDarkMode && styles.textDark]}>To be paid</Text>
+        <Text style={[styles.total, isDarkMode && styles.textDark]}>₹{order.credit.toFixed(2)}</Text>
       </View>
 
       <Text
         style={[
           styles.payment,
+          isDarkMode && styles.textDark,
           order.payment_type === 'credit' && {color: 'red'},
         ]}>
         Payment: {order.payment_type.toUpperCase()}
@@ -135,6 +139,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 10,
   },
+  containerDark: {
+    backgroundColor: '#121212',
+  },
   orderId: {
     fontWeight: '600',
     fontSize: 16,
@@ -143,6 +150,9 @@ const styles = StyleSheet.create({
     color: '#666',
     fontSize: 12,
     marginBottom: 12,
+  },
+  textDark: {
+    color: '#e2e2e2',
   },
   itemRow: {
     flexDirection: 'row',
@@ -156,6 +166,9 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#eee',
     marginVertical: 10,
+  },
+  dividerDark: {
+    backgroundColor: '#333',
   },
   row: {
     flexDirection: 'row',

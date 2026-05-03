@@ -13,6 +13,10 @@ export const getAllOrders = (params = {}) => {
   return api.get(`/orders/my?page=${page}&limit=${limit}`);
 };
 
+export const getSettings = () => {
+  return api.get('/settings');
+};
+
 // export const getProducts = () => {
 //   return api.get('/products');
 // };

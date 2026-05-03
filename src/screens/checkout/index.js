@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
+  useColorScheme,
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import {GlobalStyles} from '../../styles/GlobalStyles';
@@ -19,6 +20,8 @@ import {printReceipt} from '../../utils/printer';
 import {thermalReceiptTemplate} from '../../helper/thermalReceiptTemplate';
 
 const CheckoutScreen = ({navigation, route}) => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
   const dispatch = useDispatch();
 
   // Cart data
@@ -146,36 +149,39 @@ const CheckoutScreen = ({navigation, route}) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>Checkout</Text>
+    <View style={[styles.container, isDarkMode && styles.containerDark]}>
+      <Text style={[styles.header, isDarkMode && styles.textDark]}>Checkout</Text>
 
       {/* Phone Number */}
       <View style={styles.section}>
-        <Text style={styles.label}>Customer Contact (Optional)</Text>
+        <Text style={[styles.label, isDarkMode && styles.textDark]}>Customer Contact (Optional)</Text>
         <TextInput
           placeholder="Enter phone number"
+          placeholderTextColor={isDarkMode ? '#aaa' : '#888'}
           keyboardType="phone-pad"
           value={phone}
           onChangeText={setPhone}
-          style={styles.input}
+          style={[styles.input, isDarkMode && styles.inputDark]}
         />
       </View>
 
       {/* Payment Type */}
       <View style={styles.section}>
-        <Text style={styles.label}>Payment Method</Text>
+        <Text style={[styles.label, isDarkMode && styles.textDark]}>Payment Method</Text>
 
         <View style={styles.paymentRow}>
           <TouchableOpacity
             style={[
               styles.paymentBtn,
               paymentType === 'cash' && styles.paymentActive,
+              isDarkMode && styles.paymentBtnDark,
             ]}
             onPress={() => setPaymentType('cash')}>
             <Text
               style={[
                 styles.paymentText,
                 paymentType === 'cash' && styles.paymentTextActive,
+                isDarkMode && styles.textDark,
               ]}>
               Cash
             </Text>
@@ -185,12 +191,14 @@ const CheckoutScreen = ({navigation, route}) => {
             style={[
               styles.paymentBtn,
               paymentType === 'online' && styles.paymentActive,
+              isDarkMode && styles.paymentBtnDark,
             ]}
             onPress={() => setPaymentType('online')}>
             <Text
               style={[
                 styles.paymentText,
                 paymentType === 'online' && styles.paymentTextActive,
+                isDarkMode && styles.textDark,
               ]}>
               Online
             </Text>
@@ -200,12 +208,14 @@ const CheckoutScreen = ({navigation, route}) => {
             style={[
               styles.paymentBtn,
               paymentType === 'credit' && styles.paymentActive,
+              isDarkMode && styles.paymentBtnDark,
             ]}
             onPress={() => setPaymentType('credit')}>
             <Text
               style={[
                 styles.paymentText,
                 paymentType === 'credit' && styles.paymentTextActive,
+                isDarkMode && styles.textDark,
               ]}>
               Credit
             </Text>
@@ -214,29 +224,30 @@ const CheckoutScreen = ({navigation, route}) => {
       </View>
 
       {/* Summary */}
-      <View style={styles.summaryBox}>
+      <View style={[styles.summaryBox, isDarkMode && styles.summaryBoxDark]}>
         <View style={styles.row}>
-          <Text>Subtotal</Text>
-          <Text>₹{subtotal.toFixed(2)}</Text>
+          <Text style={isDarkMode && styles.textDark}>Subtotal</Text>
+          <Text style={isDarkMode && styles.textDark}>₹{subtotal.toFixed(2)}</Text>
         </View>
         <View style={styles.row}>
-          <Text>Discount</Text>
-          <Text>₹{discount.toFixed(2)}</Text>
+          <Text style={isDarkMode && styles.textDark}>Discount</Text>
+          <Text style={isDarkMode && styles.textDark}>₹{discount.toFixed(2)}</Text>
         </View>
         <View style={styles.row}>
-          <Text>Tax</Text>
-          <Text>₹{tax.toFixed(2)}</Text>
+          <Text style={isDarkMode && styles.textDark}>Tax</Text>
+          <Text style={isDarkMode && styles.textDark}>₹{tax.toFixed(2)}</Text>
         </View>
 
         {paymentType === 'credit' && (
           <View style={styles.row}>
-            <Text style={styles.total}>Paid now</Text>
+            <Text style={[styles.total, isDarkMode && styles.textDark]}>Paid now</Text>
             <TextInput
               placeholder="amount"
+              placeholderTextColor={isDarkMode ? '#aaa' : '#888'}
               keyboardType="phone-pad"
               value={paidAmount}
               onChangeText={setPaidAmount}
-              style={styles.input}
+              style={[styles.input, isDarkMode && styles.inputDark]}
             />
           </View>
         )}
@@ -244,8 +255,8 @@ const CheckoutScreen = ({navigation, route}) => {
         <View style={styles.divider} />
 
         <View style={styles.row}>
-          <Text style={styles.total}>Total {total}</Text>
-          <Text style={styles.total}>₹{total.toFixed(2)}</Text>
+          <Text style={[styles.total, isDarkMode && styles.textDark]}>Total {total}</Text>
+          <Text style={[styles.total, isDarkMode && styles.textDark]}>₹{total.toFixed(2)}</Text>
         </View>
 
         {paymentType === 'credit' && (
@@ -263,9 +274,10 @@ const CheckoutScreen = ({navigation, route}) => {
           styles.placeBtn,
           GlobalStyles.primaryButton,
           loading && styles.disabledBtn,
+          isDarkMode && styles.buttonDark,
         ]}
         onPress={placeOrder}>
-        <Text style={styles.placeText}>
+        <Text style={[styles.placeText, isDarkMode && styles.textDark]}>
           {loading ? 'Placing Order...' : 'Place Order'}
         </Text>
       </TouchableOpacity>
@@ -297,6 +309,31 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     backgroundColor: '#fff',
+    color: '#111',
+  },
+  inputDark: {
+    borderColor: '#444',
+    backgroundColor: '#1e1e1e',
+    color: '#fff',
+  },
+  paymentBtnDark: {
+    borderColor: '#555',
+    backgroundColor: '#181818',
+  },
+  summaryBoxDark: {
+    backgroundColor: '#1f1f1f',
+  },
+  containerDark: {
+    backgroundColor: '#121212',
+  },
+  textDark: {
+    color: '#e2e2e2',
+  },
+  dividerDark: {
+    backgroundColor: '#333',
+  },
+  buttonDark: {
+    opacity: 0.95,
   },
   paymentRow: {
     flexDirection: 'row',
@@ -335,6 +372,9 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#eee',
     marginVertical: 8,
+  },
+  dividerDark: {
+    backgroundColor: '#333',
   },
   total: {
     color: '#2E7D32',

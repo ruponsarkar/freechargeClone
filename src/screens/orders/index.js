@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator} from 'react-native';
+import {View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator, useColorScheme} from 'react-native';
 import {GlobalStyles} from '../../styles/GlobalStyles';
 import { getAllOrders } from '../../api/services/product';
 import {
@@ -10,6 +10,8 @@ import {
 
 
 const OrdersScreen = ({navigation}) => {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
   const [orders, setOrders] = useState([]);
   const [offlineMode, setOfflineMode] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
@@ -108,18 +110,18 @@ const OrdersScreen = ({navigation}) => {
   const renderItem = ({item}) => {
     return (
       <TouchableOpacity
-        style={styles.card}
+        style={[styles.card, isDarkMode && styles.cardDark]}
         activeOpacity={0.8}
         // later: navigation.navigate('OrderDetailsScreen', {orderId: item._id})
         onPress={() => navigation.navigate('OrderDetailsScreen', {order: item})}
       >
         <View style={styles.row}>
-          <Text style={styles.orderId}>{item.order_id}</Text>
-          <Text style={styles.amount}>₹{item.total}</Text>
+          <Text style={[styles.orderId, isDarkMode && styles.textDark]}>{item.order_id}</Text>
+          <Text style={[styles.amount, isDarkMode && styles.textDark]}>₹{item.total}</Text>
         </View>
 
         <View style={styles.row}>
-          <Text style={styles.meta}>
+          <Text style={[styles.meta, isDarkMode && styles.textDark]}> 
             {new Date(item.createdAt).toLocaleString()}
           </Text>
 
@@ -144,7 +146,12 @@ const OrdersScreen = ({navigation}) => {
         </View>
 
         <View style={styles.row}>
-          <Text style={[styles.status, item.status === 'paid' && styles.paid]}>
+          <Text
+            style={[
+              styles.status,
+              item.status === 'paid' ? styles.paid : isDarkMode && styles.textDark,
+            ]}
+          >
             {item.status.toUpperCase()}
           </Text>
         </View>
@@ -153,9 +160,9 @@ const OrdersScreen = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.header}>My Orders</Text>
-      <Text style={styles.info}>
+    <View style={[styles.container, isDarkMode && styles.containerDark]}>
+      <Text style={[styles.header, isDarkMode && styles.headerDark]}>My Orders</Text>
+      <Text style={[styles.info, isDarkMode && styles.infoDark]}>
         {offlineMode ? 'Offline mode' : 'Online mode'} · Pending uploads: {pendingCount}
       </Text>
 
@@ -171,16 +178,16 @@ const OrdersScreen = ({navigation}) => {
         ListFooterComponent={() =>
           loadingMore ? (
             <View style={styles.footer}>
-              <ActivityIndicator size="small" color="#1565C0" />
-              <Text style={styles.footerText}>Loading more orders...</Text>
+              <ActivityIndicator size="small" color={isDarkMode ? '#fff' : '#1565C0'} />
+              <Text style={[styles.footerText, isDarkMode && styles.textDark]}>Loading more orders...</Text>
             </View>
           ) : null
         }
         ListEmptyComponent={
           loading ? (
-            <Text style={styles.empty}>Loading orders...</Text>
+            <Text style={[styles.empty, isDarkMode && styles.textDark]}>Loading orders...</Text>
           ) : (
-            <Text style={styles.empty}>No orders found</Text>
+            <Text style={[styles.empty, isDarkMode && styles.textDark]}>No orders found</Text>
           )
         }
       />
@@ -194,10 +201,27 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: '#f9f9f9',
   },
+  containerDark: {
+    backgroundColor: '#121212',
+  },
   header: {
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 12,
+    color: '#111',
+  },
+  headerDark: {
+    color: '#fff',
+  },
+  headerDark: {
+    color: '#fff',
+  },
+  info: {
+    color: '#333',
+    marginBottom: 16,
+  },
+  infoDark: {
+    color: '#ccc',
   },
   card: {
     backgroundColor: '#fff',
@@ -205,6 +229,10 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 12,
     elevation: 2,
+  },
+  cardDark: {
+    backgroundColor: '#1e1e1e',
+    shadowColor: '#000',
   },
   row: {
     flexDirection: 'row',
@@ -223,6 +251,9 @@ const styles = StyleSheet.create({
   meta: {
     color: '#666',
     fontSize: 12,
+  },
+  textDark: {
+    color: '#e2e2e2',
   },
   badge: {
     paddingHorizontal: 8,
@@ -253,6 +284,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 40,
     color: '#888',
+  },
+  emptyDark: {
+    color: '#ccc',
   },
   footer: {
     paddingVertical: 16,
