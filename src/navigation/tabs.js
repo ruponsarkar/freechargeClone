@@ -21,6 +21,7 @@ import QRcode from '../screens/freecharge/qrcode';
 
 import BarcodeScannerModal from '../components/BarcodeScannerModal';
 import OrdersScreen from '../screens/orders';
+import SyncStatusScreen from '../screens/SyncStatusScreen';
 import MenuScreen from '../components/MenuScreen';
 
 const Tab = createBottomTabNavigator();
@@ -68,7 +69,11 @@ const MenuNav = () => {
         component={OrdersScreen}
         options={{headerShown: false, gestureStart: true, title: 'OrdersScreen'}}
       />
-
+      <Stack.Screen
+        name="SyncStatusScreen"
+        component={SyncStatusScreen}
+        options={{headerShown: true, gestureStart: true, title: 'Sync Status'}}
+      />
 
     </Stack.Navigator>
   );

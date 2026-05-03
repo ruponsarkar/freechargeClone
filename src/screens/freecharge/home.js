@@ -18,10 +18,18 @@ export default function ProductScreen({navigation}) {
   const [activeView, setActiveView] = useState('scan');
   // 'scan' | 'products'
 
-  const gotoScanData = code => {
-    if (!code) return;
+  const gotoScanData = payload => {
+    if (!payload) return;
+
+    if (typeof payload === 'string') {
+      navigation.navigate('ScanData', {code: payload});
+      return;
+    }
+
+    const code = payload.barcode || payload.sku || payload.code;
     navigation.navigate('ScanData', {
-      code: code,
+      item: payload,
+      code,
     });
   };
 

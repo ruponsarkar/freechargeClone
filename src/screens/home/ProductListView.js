@@ -10,6 +10,11 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import {getProducts} from '../../api/services/product';
+import {
+  checkInternetConnection,
+  getCachedProducts,
+  saveProductsCache,
+} from '../../utils/offlineSync';
 
 export default function ProductListView({onSelect}) {
   const [products, setProducts] = useState([]);
@@ -22,6 +27,17 @@ export default function ProductListView({onSelect}) {
   const searchTimeoutRef = useRef(null);
 
   useEffect(() => {
+    const loadCached = async () => {
+      const cached = await getCachedProducts();
+      if (cached.length) {
+        setProducts(cached);
+        setAllProducts(cached);
+      }
+    };
+    loadCached();
+  }, []);
+
+  useEffect(() => {
     fetchProducts(1);
   }, []);
 
@@ -32,21 +48,36 @@ export default function ProductListView({onSelect}) {
     setLoading(true);
 
     try {
+      const isOnline = await checkInternetConnection();
+      if (!isOnline) {
+        const cached = await getCachedProducts();
+        if (pageNo === 1) {
+          setProducts(cached);
+          setAllProducts(cached);
+        } else {
+          setPage(pageNo - 1);
+        }
+        return;
+      }
+
       const response = await getProducts({
         page: pageNo,
         limit: 20,
       });
 
       const newData = response?.data?.data || [];
+      const merged = pageNo === 1 ? newData : [...products, ...newData];
 
-      setProducts(prev =>
-        pageNo === 1 ? newData : [...prev, ...newData],
-      );
-      setAllProducts(prev =>
-        pageNo === 1 ? newData : [...prev, ...newData],
-      );
+      setProducts(merged);
+      setAllProducts(merged);
+      await saveProductsCache(merged);
     } catch (e) {
       console.log(e);
+      if (pageNo === 1) {
+        const cached = await getCachedProducts();
+        setProducts(cached);
+        setAllProducts(cached);
+      }
     }
 
     setLoading(false);
@@ -66,12 +97,26 @@ export default function ProductListView({onSelect}) {
     searchTimeoutRef.current = setTimeout(async () => {
       try {
         setLoading(true);
-        const response = await getProducts({
-          page: 1,
-          limit: 20,
-          search: text,
-        });
-        setProducts(response?.data?.data || []);
+        const isOnline = await checkInternetConnection();
+
+        if (isOnline) {
+          const response = await getProducts({
+            page: 1,
+            limit: 20,
+            search: text,
+          });
+          setProducts(response?.data?.data || []);
+        } else {
+          const filtered = allProducts.filter(item => {
+            const normalizedText = text.toLowerCase();
+            return (
+              item.name?.toLowerCase().includes(normalizedText) ||
+              item.barcode?.toLowerCase().includes(normalizedText) ||
+              item.sku?.toLowerCase().includes(normalizedText)
+            );
+          });
+          setProducts(filtered);
+        }
       } catch (e) {
         console.log(e);
       }
@@ -90,7 +135,7 @@ export default function ProductListView({onSelect}) {
     <TouchableOpacity
       activeOpacity={0.9}
       style={styles.card}
-      onPress={() => onSelect(item.barcode || item.sku)}>
+      onPress={() => onSelect(item)}>
 
       <View>
         <Text style={styles.name} numberOfLines={2}>

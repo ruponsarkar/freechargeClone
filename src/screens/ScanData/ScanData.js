@@ -12,6 +12,7 @@ import {
 import {GlobalStyles} from '../../styles/GlobalStyles';
 // import {checkWithCode} from '../../helper/product';
 import { checkWithCode } from '../../api/services/product';
+import { getCachedProducts } from '../../utils/offlineSync';
 
 import {Linking} from 'react-native';
 import BarcodeScannerModal from '../../components/BarcodeScannerModal';
@@ -27,11 +28,11 @@ export default function ScanData({route, navigation}) {
   const dispatch = useDispatch();
   const cartItems = useSelector(state => state.cart.items);
 
-  const {code} = route.params || {};
+  const {code, item} = route.params || {};
 
   const [showScanner, setShowScanner] = useState(false);
-  const [product, setProduct] = useState(null);
-  const [loadCode, setLoadCode] = useState(code);
+  const [product, setProduct] = useState(item || null);
+  const [loadCode, setLoadCode] = useState(item?.barcode || item?.sku || code);
   const [items, setItems] = useState([]);
   const [customerContact, setCustomerContact] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -58,12 +59,19 @@ export default function ScanData({route, navigation}) {
   };
 
   useEffect(() => {
+    if (item) {
+      setProduct(item);
+      setLoadCode(item.barcode || item.sku || code);
+      setHasSearched(true);
+      return;
+    }
     checkCode(code);
-  }, [code]);
+  }, [code, item]);
 
   const checkCode = async newcode => {
-    console.log('code here', newcode);
-    if (!newcode) {
+    const codeToCheck = newcode?.toString().trim();
+    console.log('code here', codeToCheck);
+    if (!codeToCheck) {
       setProduct(null);
       setHasSearched(false);
       return;
@@ -73,15 +81,23 @@ export default function ScanData({route, navigation}) {
     setHasSearched(false);
 
     try {
-      const response = await checkWithCode(newcode);
-      // console.log('response : ', response);
-      if (response.status === 200) {
-        console.log('response.data : ', response.data.images[0]?.url);
-        setProduct(response.data);
-        // addItem(response.data);
-        // dispatch(addToCart(response.data));
+      const cachedProducts = await getCachedProducts();
+      const cachedProduct = cachedProducts.find(
+        item =>
+          item.barcode?.toString().trim() === codeToCheck ||
+          item.sku?.toString().trim() === codeToCheck ||
+          item.code?.toString().trim() === codeToCheck,
+      );
+
+      if (cachedProduct) {
+        setProduct(cachedProduct);
       } else {
-        setProduct(null);
+        const response = await checkWithCode(codeToCheck);
+        if (response.status === 200) {
+          setProduct(response.data);
+        } else {
+          setProduct(null);
+        }
       }
     } catch (error) {
       console.log('error : ', error);

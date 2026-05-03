@@ -7,8 +7,10 @@ export const checkWithCode = code => {
 export const orderApi = payload => {
   return api.post('/orders', payload);
 };
-export const getAllOrders = () => {
-  return api.get('/orders/my');
+export const getAllOrders = (params = {}) => {
+  const page = params.page || 1;
+  const limit = params.limit || 20;
+  return api.get(`/orders/my?page=${page}&limit=${limit}`);
 };
 
 // export const getProducts = () => {

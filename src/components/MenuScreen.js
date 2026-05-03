@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -7,12 +7,14 @@ import {
   Alert,
 } from 'react-native';
 import {GlobalStyles} from '../../styles/GlobalStyles';
-// import AsyncStorage from '@react-native-async-storage/async-storage';
+import {checkInternetConnection, getPendingOrders} from '../utils/offlineSync';
 import { AuthContext } from '../context/AuthContext';
 import {Linking} from 'react-native';
-import {API_URL, FRONT_URL} from '@env';
+import {FRONT_URL} from '@env';
 
 const MenuScreen = ({navigation}) => {
+  const [isOnline, setIsOnline] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
 
   const {logout} = useContext(AuthContext);
   const MenuItem = ({label, onPress, danger}) => (
@@ -51,6 +53,16 @@ const MenuScreen = ({navigation}) => {
     );
   };
 
+  useEffect(() => {
+    const loadStatus = async () => {
+      const online = await checkInternetConnection();
+      const pending = await getPendingOrders();
+      setIsOnline(online);
+      setPendingCount(pending.length);
+    };
+    loadStatus();
+  }, []);
+
   const redirectToAdd = () => {
     // const url = `http://192.168.31.215:3000/addProduct?code=${loadCode}`;
     const url = `${FRONT_URL}/addProduct`;
@@ -74,6 +86,11 @@ const MenuScreen = ({navigation}) => {
         <MenuItem
           label="All Orders"
           onPress={() => navigation.navigate('OrdersScreen')}
+        />
+
+        <MenuItem
+          label={`Sync Status ${isOnline ? '🟢' : '🔴'} (${pendingCount} pending)`}
+          onPress={() => navigation.navigate('SyncStatusScreen')}
         />
 
         <MenuItem

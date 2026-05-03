@@ -12,6 +12,7 @@ import {GlobalStyles} from '../../styles/GlobalStyles';
 // import {clearCart} from '../../redux/slices/cartSlice'; // optional
 // import { orderApi } from '../../helper/product';
 import {orderApi} from '../../api/services/product';
+import {addPendingOrder, checkInternetConnection} from '../../utils/offlineSync';
 import {clearCart} from '../../redux/slices/cartSlice';
 
 import {printReceipt} from '../../utils/printer';
@@ -110,15 +111,27 @@ const CheckoutScreen = ({navigation, route}) => {
 
     } catch (err) {
       console.log('ORDER ERROR =>', err);
-      if (err.status === 401) {
+      const isOnline = await checkInternetConnection();
+      if (!isOnline || !err.response) {
+        await addPendingOrder(payload);
+        dispatch(clearCart());
+        Alert.alert(
+          'Offline',
+          'No internet connection. Order saved locally and will sync when connection returns.',
+        );
+        navigation.navigate('OrdersScreen');
+        return;
+      }
+
+      if (err.response?.status === 401) {
         Alert.alert(
           'Error',
           'Failed to place order, auth issue, re login and try again',
         );
-
         return;
       }
-      Alert.alert('Error', 'Failed to place order', err);
+
+      Alert.alert('Error', 'Failed to place order');
     } finally {
       setLoading(false);
     }

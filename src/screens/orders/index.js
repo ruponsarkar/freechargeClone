@@ -1,33 +1,107 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, FlatList, TouchableOpacity, ActivityIndicator} from 'react-native';
 import {GlobalStyles} from '../../styles/GlobalStyles';
 import { getAllOrders } from '../../api/services/product';
+import {
+  checkInternetConnection,
+  getCachedOrders,
+  getPendingOrders,
+} from '../../utils/offlineSync';
 
 
 const OrdersScreen = ({navigation}) => {
-
-
-
   const [orders, setOrders] = useState([]);
+  const [offlineMode, setOfflineMode] = useState(false);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [page, setPage] = useState(1);
+  const [limit] = useState(20);
+  const [loading, setLoading] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [noMoreData, setNoMoreData] = useState(false);
+
   useEffect(() => {
-    fetchOrders();
+    fetchOrders(1, true);
   }, []);
 
-
-  const fetchOrders = async () => {
-    try {
-      const response = await getAllOrders();
-      console.log('response : ', response.data);
-      setOrders(response.data);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
+  const extractOrders = response => {
+    if (Array.isArray(response?.data)) {
+      return response.data;
     }
+    if (Array.isArray(response?.data?.data)) {
+      return response.data.data;
+    }
+    return [];
+  };
+
+  const fetchOrders = async (pageNumber = 1, reset = false) => {
+    if (loading || loadingMore) {
+      return;
+    }
+
+    if (reset) {
+      setNoMoreData(false);
+      setPage(1);
+    }
+
+    const isLoadMore = pageNumber > 1;
+    if (isLoadMore) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
+
+    try {
+      const online = await checkInternetConnection();
+      if (!online) {
+        throw new Error('offline');
+      }
+
+      const response = await getAllOrders({page: pageNumber, limit});
+      const fetchedOrders = extractOrders(response);
+      console.log('response : ', response.data);
+
+      setOrders(prev => (isLoadMore ? [...prev, ...fetchedOrders] : fetchedOrders));
+      setOfflineMode(false);
+      setPage(pageNumber);
+      setNoMoreData(fetchedOrders.length < limit);
+    } catch (error) {
+      if (!isLoadMore) {
+        const cached = await getCachedOrders();
+        setOrders(cached);
+        setOfflineMode(true);
+      }
+      setNoMoreData(true);
+      console.warn('Offline/orders load from cache or no internet', error);
+    } finally {
+      if (isLoadMore) {
+        setLoadingMore(false);
+      } else {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    }
+
+    const pending = await getPendingOrders();
+    setPendingCount(pending.length);
+  };
+
+  const handleLoadMore = () => {
+    if (offlineMode || loadingMore || loading || noMoreData) {
+      return;
+    }
+
+    fetchOrders(page + 1);
+  };
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchOrders(1, true);
   };
 
   // const handleOrderDetails = (orderId) => {
   //   navigation.navigate('OrderDetails', {orderId});
   // };
-
 
 
 
@@ -81,13 +155,34 @@ const OrdersScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <Text style={styles.header}>My Orders</Text>
+      <Text style={styles.info}>
+        {offlineMode ? 'Offline mode' : 'Online mode'} · Pending uploads: {pendingCount}
+      </Text>
 
       <FlatList
         data={orders}
         keyExtractor={item => item._id}
         renderItem={renderItem}
         contentContainerStyle={{paddingBottom: 20}}
-        ListEmptyComponent={<Text style={styles.empty}>No orders found</Text>}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        refreshing={refreshing}
+        onRefresh={handleRefresh}
+        ListFooterComponent={() =>
+          loadingMore ? (
+            <View style={styles.footer}>
+              <ActivityIndicator size="small" color="#1565C0" />
+              <Text style={styles.footerText}>Loading more orders...</Text>
+            </View>
+          ) : null
+        }
+        ListEmptyComponent={
+          loading ? (
+            <Text style={styles.empty}>Loading orders...</Text>
+          ) : (
+            <Text style={styles.empty}>No orders found</Text>
+          )
+        }
       />
     </View>
   );
@@ -158,6 +253,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 40,
     color: '#888',
+  },
+  footer: {
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  footerText: {
+    marginTop: 8,
+    color: '#555',
+    fontSize: 12,
   },
 });
 
