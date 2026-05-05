@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  StatusBar,
+  SafeAreaView,
 } from 'react-native';
 import {loginAPI} from '../../api/services/auth';
 // import AuthContext from '../../context/AuthContext';
@@ -64,87 +66,183 @@ export default function LoginScreen({navigation}) {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#050816" />
+      <View style={styles.container}>
+        <View style={styles.backgroundGlowTop} />
+        <View style={styles.backgroundGlowBottom} />
 
-      {/* <ThermalPrint /> */}
+        <View style={styles.header}>
+          <Text style={styles.eyebrow}>Welcome Back</Text>
+          <Text style={styles.title}>Login</Text>
+          <Text style={styles.subtitle}>
+            Sign in to access your workspace and continue scanning products.
+          </Text>
+        </View>
 
+        <View style={styles.card}>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Tenant slug</Text>
+            <TextInput
+              placeholder="Enter tenant slug"
+              placeholderTextColor="#6B7280"
+              value={tenantSlug}
+              onChangeText={setTenantSlug}
+              autoCapitalize="none"
+              style={styles.input}
+            />
+          </View>
 
-      <Text style={styles.title}>Login</Text>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Tenant ID</Text>
+            <TextInput
+              placeholder="Enter tenant ID"
+              placeholderTextColor="#6B7280"
+              value={tenantId}
+              onChangeText={setTenantId}
+              autoCapitalize="none"
+              style={styles.input}
+            />
+          </View>
 
-      <TextInput
-        placeholder="Tenant slug"
-        value={tenantSlug}
-        onChangeText={setTenantSlug}
-        autoCapitalize="none"
-        style={styles.input}
-      />
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Email</Text>
+            <TextInput
+              placeholder="Enter email address"
+              placeholderTextColor="#6B7280"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              style={styles.input}
+            />
+          </View>
 
-      <TextInput
-        placeholder="Tenant ID"
-        value={tenantId}
-        onChangeText={setTenantId}
-        autoCapitalize="none"
-        style={styles.input}
-      />
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Password</Text>
+            <TextInput
+              placeholder="Enter password"
+              placeholderTextColor="#6B7280"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              style={styles.input}
+            />
+          </View>
 
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        autoCapitalize="none"
-        keyboardType="email-address"
-        style={styles.input}
-      />
-
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-      />
-
-      <TouchableOpacity
-        style={styles.btn}
-        onPress={handleLogin}
-        disabled={loading}>
-        <Text style={styles.btnText}>
-          {loading ? 'Logging in...' : 'Login'}
-        </Text>
-      </TouchableOpacity>
-    </View>
+          <TouchableOpacity
+            style={[styles.btn, loading && styles.btnDisabled]}
+            onPress={handleLogin}
+            disabled={loading}>
+            <Text style={styles.btnText}>
+              {loading ? 'Logging in...' : 'Login'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#050816',
+  },
   container: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 28,
     justifyContent: 'center',
+    backgroundColor: '#050816',
+  },
+  backgroundGlowTop: {
+    position: 'absolute',
+    top: 40,
+    right: -50,
+    width: 180,
+    height: 180,
+    borderRadius: 90,
+    backgroundColor: '#1D4ED8',
+    opacity: 0.16,
+  },
+  backgroundGlowBottom: {
+    position: 'absolute',
+    bottom: 80,
+    left: -60,
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: '#059669',
+    opacity: 0.12,
+  },
+  header: {
+    marginBottom: 28,
+  },
+  eyebrow: {
+    color: '#60A5FA',
+    fontSize: 13,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 1.2,
+    marginBottom: 10,
   },
   title: {
-    fontSize: 22,
+    fontSize: 34,
+    fontWeight: '700',
+    color: '#F8FAFC',
+    marginBottom: 10,
+  },
+  subtitle: {
+    fontSize: 15,
+    lineHeight: 22,
+    color: '#94A3B8',
+  },
+  card: {
+    backgroundColor: '#0F172A',
+    borderWidth: 1,
+    borderColor: '#1E293B',
+    borderRadius: 22,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.3,
+    shadowRadius: 18,
+    shadowOffset: {width: 0, height: 10},
+    elevation: 10,
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    color: '#CBD5E1',
+    fontSize: 14,
     fontWeight: '600',
-    marginBottom: 20,
-    textAlign: 'center',
+    marginBottom: 8,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
+    borderColor: '#334155',
+    backgroundColor: '#111827',
+    color: '#F8FAFC',
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    paddingVertical: 13,
+    fontSize: 15,
   },
   btn: {
-    backgroundColor: '#2E7D32',
-    padding: 14,
-    borderRadius: 8,
+    backgroundColor: '#2563EB',
+    paddingVertical: 15,
+    borderRadius: 14,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 8,
+  },
+  btnDisabled: {
+    backgroundColor: '#1D4ED8',
+    opacity: 0.7,
   },
   btnText: {
     color: '#fff',
-    fontWeight: '600',
+    fontWeight: '700',
     fontSize: 16,
   },
 });
