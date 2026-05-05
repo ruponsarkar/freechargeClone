@@ -7,6 +7,7 @@ import {
   Alert,
   useColorScheme,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {GlobalStyles} from '../../styles/GlobalStyles';
 import {checkInternetConnection, getPendingOrders} from '../utils/offlineSync';
 import { AuthContext } from '../context/AuthContext';
@@ -70,9 +71,15 @@ const MenuScreen = ({navigation}) => {
     loadStatus();
   }, []);
 
-  const redirectToAdd = () => {
-    // const url = `http://192.168.31.215:3000/addProduct?code=${loadCode}`;
-    const url = `${FRONT_URL}/addProduct`;
+  const redirectToAdd = async () => {
+    const token = await AsyncStorage.getItem('token');
+    const params = new URLSearchParams();
+
+    if (token) {
+      params.append('token', token);
+    }
+
+    const url = `${FRONT_URL}/addProduct${params.toString() ? `?${params.toString()}` : ''}`;
 
     Linking.openURL(url).catch(err =>
       console.error('Failed to open URL:', err),

@@ -13,6 +13,7 @@ import {GlobalStyles} from '../../styles/GlobalStyles';
 // import {checkWithCode} from '../../helper/product';
 import { checkWithCode } from '../../api/services/product';
 import { getCachedProducts } from '../../utils/offlineSync';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import {Linking} from 'react-native';
 import BarcodeScannerModal from '../../components/BarcodeScannerModal';
@@ -108,9 +109,21 @@ export default function ScanData({route, navigation}) {
     }
   };
 
-  const redirectToAdd = () => {
-    // const url = `http://192.168.31.215:3000/addProduct?code=${loadCode}`;
-    const url = `${FRONT_URL}/addProduct?code=${loadCode}`;
+  const redirectToAdd = async () => {
+    const token = await AsyncStorage.getItem('token');
+    const params = new URLSearchParams();
+
+    if (loadCode) {
+      params.append('code', loadCode);
+    }
+    if (token) {
+      params.append('token', token);
+    }
+
+    console.log("params ", params.toString());
+    console.log("token ", token);
+    
+    const url = `${FRONT_URL}/addProduct?${params.toString()}`;
 
     Linking.openURL(url).catch(err =>
       console.error('Failed to open URL:', err),
